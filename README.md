@@ -77,7 +77,7 @@ python api/app.py
 
 - Team Name: [Group 7]
 - Team Members:
-  - [Claudia Ni] - GitHub: [@github_id1]
+  - [Claudia Ni] - GitHub: [@Claudia-Ni]
   - [Elina Gu] - GitHub: [@ElinaGu]
   - [Hannah Wang] - GitHub: [@hannah0406xy]
   - [Lincoln Lyu] - GitHub: [@Lincolnlyu]
