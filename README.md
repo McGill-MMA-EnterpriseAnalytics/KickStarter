@@ -75,12 +75,12 @@ python api/app.py
 
 ## Team
 
-- Team Name: [Your Team Name]
+- Team Name: [Group 7]
 - Team Members:
   - [Claudia Ni] - GitHub: [@github_id1]
-  - [Elina Gu] - GitHub: [@github_id2]
-  - [Hannah Wang] - GitHub: [@github_id3]
-  - [Lincoln Lyu] - GitHub: [@github_id3]
+  - [Elina Gu] - GitHub: [@ElinaGu]
+  - [Hannah Wang] - GitHub: [@hannah0406xy]
+  - [Lincoln Lyu] - GitHub: [@Lincolnlyu]
   - [Ricardo Lu] - GitHub: [@github_id3]
 
 ## License
