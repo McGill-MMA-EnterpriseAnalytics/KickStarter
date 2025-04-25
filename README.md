@@ -59,6 +59,9 @@ python src/data/process_data.py
 python src/models/train_model.py
 ```
 
+### Ethical AI & Fairness
+To ensure our final XGBoost model operates fairly across different user groups, we conducted a fairness analysis using country_encoded as the protected attribute. Leveraging Fairlearn, we computed group-specific metrics such as accuracy and selection rate, alongside global fairness metrics including Demographic Parity Difference and Equalized Odds Difference. The results indicated no substantial performance disparities across country groups, with fairness metrics falling within commonly accepted thresholds (≤ 0.1). These findings suggest that the model does not systematically favor or disadvantage any specific country group, supporting its ethical application in the Kickstarter prediction context.
+
 ### API Service
 
 ```bash
