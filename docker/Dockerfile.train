@@ -1,27 +1,28 @@
-# Dockerfile.train
+# ────────────────────────────────────────────────────────
+# Build image for training & pipeline orchestration
+# ────────────────────────────────────────────────────────
 FROM python:3.10-slim
 
-# 1) Set up working directory
+# 1) Set workdir
 WORKDIR /app
 
-# 2) Install system dependencies (if any)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
- && rm -rf /var/lib/apt/lists/*
+# 2) Install Python dependencies
+COPY requirement.txt .
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirement.txt
 
-# 3) Copy and install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 4) Copy project code
+# 3) Copy your application code
 COPY src/ ./src/
-COPY kickstarter_final_processed.csv .
-COPY selected_features.txt .
-# If you need raw Excel or preprocessing inputs, copy them too:
-# COPY Kickstarter.xlsx .
 
-# 5) Create output directory for models
+# 4) Copy processed data & feature list
+COPY Data/kickstarter_final_processed.csv .
+COPY selected_features.txt .
+
+# 5) Configure MLflow to use a local, writeable mlruns folder
+ENV MLFLOW_TRACKING_URI=file:./mlruns
+
+# 6) Create output folder for trained models
 RUN mkdir -p models
 
-# 6) Default command: run the pipeline
-ENTRYPOINT ["python", "src/pipeline.py"]
+# 7) Default command: run your end-to-end pipeline
+CMD ["python", "src/pipeline.py"]
