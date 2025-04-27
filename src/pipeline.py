@@ -24,14 +24,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 import xgboost as xgb
 
-from data_loader    import load_and_clean_data, split_data
-from preprocessing  import main as run_preprocessing
-from feature_selection import select_via_rfecv
-from tuning         import tune_all
-from modeling       import evaluate_model, log_model_to_mlflow
-from evaluation     import make_comparison_df, combine_comparisons, plot_roc_auc_comparison, plot_best_model_metrics
-from fairness       import evaluate_fairness_by_group
-from explainability import plot_feature_importance, plot_learning_curves
+from .data_loader    import load_and_clean_data, split_data
+from .preprocessing  import main as run_preprocessing
+from .feature_selection import select_via_rfecv
+from .tuning         import tune_all
+from .modeling       import evaluate_model, log_model_to_mlflow
+from .evaluation     import make_comparison_df, combine_comparisons, plot_roc_auc_comparison, plot_best_model_metrics
+from .fairness       import evaluate_fairness_by_group
+from .explainability import plot_feature_importance, plot_learning_curves
 
 def main():
     # 1) Preprocessing (if starting from raw Excel)
