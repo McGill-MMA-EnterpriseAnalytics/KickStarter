@@ -17,7 +17,7 @@ COPY src/ ./src/
 # 4) Copy the trained pipeline & feature list
 #    (assumes you ran the training container and populated Models/)
 RUN mkdir -p models
-COPY Best_Model/Best Model/best_kickstarter_model_xgb_optimized_pipeline (1).pkl models/best_pipeline.pkl
+COPY Best_Model/best_kickstarter_model_xgb_optimized_pipeline (1).pkl models/best_pipeline.pkl
 COPY selected_features.txt .
 
 # 5) Expose the API port
