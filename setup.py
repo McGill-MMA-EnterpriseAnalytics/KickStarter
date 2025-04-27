@@ -7,7 +7,7 @@ setup(
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     packages=find_packages(where="src"),
-    package_dir={"": "src"},
+    package_dir={"src": "src"},
     python_requires=">=3.8",
     install_requires=[
         "pandas",
