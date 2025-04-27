@@ -1,0 +1,88 @@
+name: CI/CD Pipeline
+
+# Trigger on pushes to main or PRs targeting main
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          flake8 src
+
+      - name: Run pytest
+        run: |
+          pip install pytest
+          pytest --maxfail=1 --disable-warnings -q
+
+  build-and-push:
+    name: Build & Push Images
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Build training image
+        run: |
+          docker build -f Dockerfile.train -t ${{ secrets.DOCKERHUB_USER }}/kickstarter-train:${{ github.sha }} .
+
+      - name: Build inference image
+        run: |
+          docker build -f Dockerfile.infer -t ${{ secrets.DOCKERHUB_USER }}/kickstarter-infer:${{ github.sha }} .
+
+      - name: Push images
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USER }}/kickstarter-train:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USER }}/kickstarter-infer:${{ github.sha }}
+
+  deploy:
+    name: Deploy to Kubernetes
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.24.0'
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install kickstarter-app ./helm-chart \
+            --set image.train.tag=${{ github.sha }} \
+            --set image.infer.tag=${{ github.sha }}
