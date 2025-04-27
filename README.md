@@ -84,7 +84,7 @@ python api/app.py
   - [Elina Gu] - GitHub: [@ElinaGu]
   - [Hannah Wang] - GitHub: [@hannah0406xy]
   - [Lincoln Lyu] - GitHub: [@Lincolnlyu]
-  - [Ricardo Lu] - GitHub: [@github_id3]
+  - [Ricardo Lu] - GitHub: [@rickyy-ming]
 
 ## License
 
