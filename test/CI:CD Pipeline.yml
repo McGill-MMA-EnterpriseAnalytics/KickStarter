@@ -35,6 +35,10 @@ jobs:
           pip install flake8
           flake8 src
 
+        
+      - name: Expose src as a module
+        run: echo "PYTHONPATH=${{ github.workspace }}/src" >> $GITHUB_ENV
+
       - name: Run pytest
         run: |
           pip install pytest
