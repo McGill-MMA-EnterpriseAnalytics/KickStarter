@@ -52,12 +52,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Log in to Docker Hub
+
+      # 1) Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v2
         with:
-          registry: docker.io
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASS }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build training image
         run: |
@@ -72,22 +74,3 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USER }}/kickstarter-train:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USER }}/kickstarter-infer:${{ github.sha }}
 
-  deploy:
-    name: Deploy to Kubernetes
-    needs: build-and-push
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.24.0'
-
-      - name: Deploy with Helm
-        run: |
-          helm upgrade --install kickstarter-app ./helm-chart \
-            --set image.train.tag=${{ github.sha }} \
-            --set image.infer.tag=${{ github.sha }}
