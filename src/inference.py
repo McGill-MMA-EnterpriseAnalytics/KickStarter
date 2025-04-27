@@ -7,20 +7,27 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
 import pandas as pd
+import os
 
 app = FastAPI(
     title="Kickstarter Success Predictor",
     description="Binary success prediction for Kickstarter projects",
 )
 
-# Load your pipeline once at startup
-pipeline = joblib.load('best_kickstarter_model_xgb_optimized_pipeline.pkl')
-
+MODEL_PATH = os.getenv("PIPELINE_PATH",
+                      "Best_Model/best_kickstarter_model_xgb_optimized_pipeline.pkl")
+try:
+    pipeline = joblib.load(MODEL_PATH)
+except FileNotFoundError:
+    pipeline = None
 class Payload(BaseModel):
     __root__: dict
 
 @app.post("/predict")
 def predict(payload: Payload):
+       # ensure we have a pipeline
+    if pipeline is None:
+        return {"error": "Model not loaded"}, 500
     df = pd.DataFrame([payload.__root__])
     pred = pipeline.predict(df)[0]
     proba = pipeline.predict_proba(df)[0,1]
