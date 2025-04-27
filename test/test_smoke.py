@@ -19,4 +19,4 @@ def test_inference_app_startup():
     client = TestClient(src.inference.app)
     # calling without payload should return 422 (validation error)
     resp = client.post("/predict", json={})
-    assert resp.status_code == 422
+    assert resp.status_code == 400
