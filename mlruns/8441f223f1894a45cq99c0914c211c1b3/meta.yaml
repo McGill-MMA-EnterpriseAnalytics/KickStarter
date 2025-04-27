@@ -1,0 +1,15 @@
+artifact_uri: file:///content/mlruns/0/9931f250fd894d28bf69c0169b13c7c2/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 9931f250fd894d28bf69c0169b13c7c2
+run_name: kickstarter_feature_engineering_fixed
+run_uuid: 9931f250fd894d28bf69c0169b13c7c2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1745723713755
+status: 1
+tags: []
+user_id: root
