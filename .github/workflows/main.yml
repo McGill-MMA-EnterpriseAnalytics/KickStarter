@@ -67,22 +67,4 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USER }}/kickstarter-train:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USER }}/kickstarter-infer:${{ github.sha }}
 
-  deploy:
-    name: Deploy to Kubernetes
-    needs: build-and-push
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'v1.24.0'
-
-      - name: Deploy with Helm
-        run: |
-          helm upgrade --install kickstarter-app ./helm-chart \
-            --set image.train.tag=${{ github.sha }} \
-            --set image.infer.tag=${{ github.sha }}
+  
