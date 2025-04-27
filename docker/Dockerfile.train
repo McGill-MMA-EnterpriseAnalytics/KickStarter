@@ -1,0 +1,27 @@
+# Dockerfile.train
+FROM python:3.10-slim
+
+# 1) Set up working directory
+WORKDIR /app
+
+# 2) Install system dependencies (if any)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+ && rm -rf /var/lib/apt/lists/*
+
+# 3) Copy and install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 4) Copy project code
+COPY src/ ./src/
+COPY kickstarter_final_processed.csv .
+COPY selected_features.txt .
+# If you need raw Excel or preprocessing inputs, copy them too:
+# COPY Kickstarter.xlsx .
+
+# 5) Create output directory for models
+RUN mkdir -p models
+
+# 6) Default command: run the pipeline
+ENTRYPOINT ["python", "src/pipeline.py"]
