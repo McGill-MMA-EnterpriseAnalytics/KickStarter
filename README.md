@@ -67,35 +67,60 @@ pip install -r requirements.txt
 
 ## Dataset
 
-The dataset contains information about 15,215 Kickstarter projects with 46 features, including:
-- Project metadata (name, goal, pledged amount, category, etc.)
-- Temporal information (launch date, deadline, etc.)
-- Campaign characteristics (staff pick status, video presence, etc.)
+Our analysis leverages a comprehensive dataset of **15,215 Kickstarter campaigns** spanning **2011–2021**, covering **22 countries**, **15 main categories** (158 subcategories), and **46 original variables**. Projects range from \$1 to \$100 M goals (median \$5 000) and exhibit a 57.7% success rate. This rich, multi-dimensional data enables robust modeling of success drivers across diverse campaign types. :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
 
-### Data Preprocessing & Feature Engineering 
+Key feature groups include:  
+- **Project metadata**: name length, funding goal, category, country, staff pick status, video presence, etc.  
+- **Temporal information**: creation date, launch date, deadline, campaign duration, weekday/weekend flags.  
+- **Campaign characteristics**: blurb length, reward tiers, staff picks, spotlight flags.  
+- **Engagement indicators**: historical subcategory success rates, country-level success rates.  
+
+---
+
+### Data Preprocessing & Feature Engineering
+
+To ensure data integrity, prevent leakage, and extract meaningful predictors, we apply a multi-step preprocessing pipeline, with all actions logged via MLflow for transparency and reproducibility. :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
 
 1. **Leakage Prevention**  
-   - Dropped post-outcome fields (pledged amount, backers, timestamps)  
-   - Logged all removals via MLflow  
-2. **Missing Data**  
-   - Numeric: KNN imputation (k=5)  
-   - Categorical: Mode imputation for `main_category`  
-3. **Datetime Features**  
-   - Parsed `created_at`, `launched_at`, `deadline`  
-   - Engineered duration, preparation time, weekend flag, cyclic time features  
+   - **Target Definition**: Create binary label (`success` vs. `failure`) based solely on project state at prediction time.  
+   - **Dynamic Removal**: Identify and drop post-outcome fields (e.g., `pledged_amount`, `backers`, `state_change_timestamps`, `staff_pick_time`).  
+   - **Audit Trail**: Log removed features and counts in MLflow under the “DataPreprocessing” experiment.  
+
+2. **Missing Data Imputation**  
+   - **Numeric Columns**: KNN imputation (`k=5`) on standardized values, then invert scaling to original units.  
+   - **Categorical Columns**: Mode imputation for `main_category` (only ~1.9% missing).  
+   - **Logging**: Record imputation counts and methods in MLflow. :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}  
+
+3. **Datetime Feature Extraction**  
+   - **Parsing**: Convert `created_at`, `launched_at`, and `deadline` to `datetime64`.  
+   - **Derived Features**:  
+     - `campaign_duration` = days between launch and deadline  
+     - `prep_time` = days between creation and launch  
+     - `launch_weekend` flag  
+     - Cyclic encodings for `launch_month`, `launch_day_of_week`, `launch_hour` (sine & cosine transforms). :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}  
+
 4. **Goal-Related Features**  
-   - Goal/day, log-goal, goal percentile bins, USD-adjusted(goal)  
-5. **Encoding**  
-   - One-hot for low-cardinality (<10 values)  
-   - Smoothed target encoding for high-cardinality (category, subcategory, country)  
-   - Entity embeddings (dim = min(50, √unique_vals)) for selected categorical features  
+   - **Daily Goal Rate**: `goal_per_day` = goal / campaign_duration  
+   - **Log Transform**: `goal_log` = ln(goal + 1) to reduce skewness  
+   - **Percentile Bins**: Bin `goal_log` into deciles to capture non-linear effects  
+   - **USD Adjustment**: Normalize goal by historical currency exchange rates for multi-country campaigns  
+
+5. **Categorical Encoding & Embeddings**  
+   - **One-Hot Encoding**: For low-cardinality features (< 10 unique values) such as `launch_weekend`.  
+   - **Smoothed Target Encoding**: For high-cardinality features (`category`, `subcategory`, `country`), using training-only aggregates to avoid leakage.  
+   - **Entity Embeddings**: For selected high-cardinality categories (unique values ≥ 10), with embedding dimension = `min(50, √(n_unique))`. :contentReference[oaicite:8]{index=8}&#8203;:contentReference[oaicite:9]{index=9}  
+
 6. **Dimensionality Reduction**  
-   - PCA on standardized numeric features  
-   - Retained 95% variance → reduced 85 → 52 components  
+   - **Standardization**: Scale numeric features to zero mean and unit variance.  
+   - **PCA**: Retain 95% of variance, reducing from 85 numeric dimensions to 52 principal components.  
+   - **Integration**: Append PCA components to feature matrix and log explained variance ratio. :contentReference[oaicite:10]{index=10}&#8203;:contentReference[oaicite:11]{index=11}  
+
 7. **Final Cleanup**  
-   - Converted datetime to days since 2010-01-01  
-   - Dropped original category columns  
-   - Median imputation for remaining missing bins  
+   - **Datetime Numeric Conversion**: Drop original timestamp columns; convert key dates to numeric days since `2010-01-01`.  
+   - **Drop Originals**: Remove raw categorical columns after encoding and embedding.  
+   - **Residual Imputation**: Median-impute any remaining missing values (e.g., missing percentile bins).  
+   - **Audit**: Log final feature count and any dropped columns for reproducibility. :contentReference[oaicite:12]{index=12}&#8203;:contentReference[oaicite:13]{index=13}  
+
 
 ---
 
@@ -325,11 +350,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
 - **Dashboarding**:  
   - Visualize drift trends, feature importance shifts, and model performance over time. 
 
-## API Service
-
-
-
-
+---
 ## Team
 
 - Team Name: [Group 7]
@@ -339,6 +360,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
   - [Hannah Wang] - GitHub: [@hannah0406xy]
   - [Lincoln Lyu] - GitHub: [@Lincolnlyu]
   - [Ricardo Lu] - GitHub: [@rickyy-ming]
+
 
 ## License
 
