@@ -179,7 +179,7 @@ The optimized XGBoost model achieves the highest ROC AUC (0.9105) and demonstrat
 - **Cross-Validation Stability**: Low variance in ROC AUC across folds (< 0.005) indicates consistent performance.  
 
 ---
-### Ethical AI & Fairness
+## Ethical AI & Fairness
 To ensure our final XGBoost model operates fairly across different user groups, we conducted a fairness analysis using country_encoded as the protected attribute. Leveraging Fairlearn, we computed group-specific metrics such as accuracy and selection rate, alongside global fairness metrics including Demographic Parity Difference and Equalized Odds Difference. The results indicated no substantial performance disparities across country groups, with fairness metrics falling within commonly accepted thresholds (≤ 0.1). These findings suggest that the model does not systematically favor or disadvantage any specific country group, supporting its ethical application in the Kickstarter prediction context.
 
 ### Explainability & Fairness
@@ -198,11 +198,11 @@ To ensure our final XGBoost model operates fairly across different user groups, 
 ---
 
 
-### MLOps & Deployment
+## MLOps & Deployment
 
 To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success Prediction pipeline, we operationalize every stage—from model training to serving and monitoring—using containerization, CI/CD, and automated drift detection. This MLOps framework guarantees reproducibility, rapid iteration, and proactive maintenance in production. :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
 
-#### 1. Dockerized Pipelines  
+### 1. Dockerized Pipelines  
 - **Training Image** (`docker/train/Dockerfile`)  
   - **Base**: `python:3.10-slim`  
   - **Dependencies**: system packages + `requirements.txt`  
@@ -234,7 +234,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
   - **Health Check**:  
     - Endpoint: `GET /healthz` returns `200 OK` when service is ready. :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}  
 
-#### 2. CI/CD with GitHub Actions  
+### 2. CI/CD with GitHub Actions  
 - **Triggers**:  
   - `push` and `pull_request` on the `main` branch  
   - `workflow_dispatch` for manual runs  
@@ -261,7 +261,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
   - Coverage reports  
   - Built Docker image digests :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}  
 
-#### 3. Model Drift Detection & Monitoring  
+### 3. Model Drift Detection & Monitoring  
 - **Drift Metrics** (Evidently.ai)  
   - **Numerical Drift**: KS-statistic, Population Stability Index (PSI)  
   - **Categorical Drift**: Chi-square test on frequency shifts  
@@ -283,7 +283,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
   - Visualize drift trends, feature importance shifts, and model performance over time. :contentReference[oaicite:8]{index=8}&#8203;:contentReference[oaicite:9]{index=9}  
 
 
-### API Service
+## API Service
 
 
 
