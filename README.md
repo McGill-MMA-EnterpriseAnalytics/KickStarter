@@ -1,6 +1,6 @@
 # Kickstarter Success Prediction
 
-A data science project to predict Kickstarter campaign success using machine learning techniques.
+A data science project to predict Kickstarter campaign success using advanced machine learning techniques.
 
 ## Project Overview
 
