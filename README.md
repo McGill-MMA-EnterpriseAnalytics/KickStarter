@@ -18,26 +18,6 @@ This project analyzes Kickstarter campaign data to develop models that predict c
 ## Project Structure
 
 ```
-├── data/                  # Data files (raw and processed)
-├── notebooks/             # Jupyter notebooks for exploration and analysis
-├── src/                   # Source code
-│   ├── data/              # Data processing scripts
-│   ├── features/          # Feature engineering code
-│   ├── models/            # Model training and evaluation
-│   ├── visualization/     # Data visualization code
-│   └── utils/             # Utility functions
-├── tests/                 # Unit and integration tests
-├── docker/                # Docker configuration
-├── mlflow/                # MLflow tracking and experiments
-├── api/                   # API for model serving
-├── docs/                  # Documentation
-├── .github/               # GitHub Actions workflows
-├── requirements.txt       # Project dependencies
-├── setup.py               # Package installation
-└── README.md              # Project documentation
-```
-
-```
 ├── .github
 │   └── workflows
 │       └── ci-cd.yml             # GitHub Actions pipeline
