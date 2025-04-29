@@ -179,28 +179,71 @@ The optimized XGBoost model achieves the highest ROC AUC (0.9105) and demonstrat
 - **Cross-Validation Stability**: Low variance in ROC AUC across folds (< 0.005) indicates consistent performance.  
 
 ---
+
 ## Ethical AI & Fairness
 To ensure our final XGBoost model operates fairly across different user groups, we conducted a fairness analysis using country_encoded as the protected attribute. Leveraging Fairlearn, we computed group-specific metrics such as accuracy and selection rate, alongside global fairness metrics including Demographic Parity Difference and Equalized Odds Difference. The results indicated no substantial performance disparities across country groups, with fairness metrics falling within commonly accepted thresholds (≤ 0.1). These findings suggest that the model does not systematically favor or disadvantage any specific country group, supporting its ethical application in the Kickstarter prediction context.
 
 ### Explainability & Fairness
 
-- **SHAP Analysis**  
-  - Top predictors: `usd_goal_real`, `campaign_duration`, `launch_month`  
-  - Dependence plots reveal non-linear effects (e.g. optimal campaign length ≈ 30–45 days)  
-- **Fairness Evaluation**  
-  - Accuracy gap: staff-picked vs. non-staff-picked campaigns (~13%)  
-  - Goal-size disparity: Demographic Parity Δ up to 0.74  
-  - Category disparity: Equalized Odds Δ ≈ 0.95  
-  - Mitigation: reweighting, fairness-aware post-processing  
-- **Additional Methods**  
-  - LIME & ELI5 Permutation Importance confirms feature consistency  
+To build trust and identify potential biases, we apply both global and local explainability techniques alongside rigorous fairness audits.  
+
+#### 1. SHAP Analysis  
+- **Global Importance**  
+  - **Top Features** (by mean absolute SHAP value):  
+    1. `usd_goal_real` (higher goals decrease success probability)  
+    2. `campaign_duration` (optimal around 30–45 days)  
+    3. `launch_month` (seasonality effects; mid-year launches perform best)  
+    4. `subcategory_success_rate` (historical success in subcategory boosts prediction)  
+    5. `staff_pick` flag  
+  - **Beeswarm Plot**: Displays each feature’s distribution of impacts on the model output, revealing nonlinear and interaction effects. 
+- **Dependence Plots**  
+  - **`usd_goal_real`**: Success probability drops sharply as goal rises above the 25th percentile, with diminishing marginal effects at very high goals. 
+  - **`campaign_duration`**: Peak success around 30–45 days; very short (<15 days) or very long (>60 days) campaigns show reduced probability. 
+  - **`launch_month`**: Warm-season months (May–August) have ~5–8% higher success probability compared to winter months.
+    
+- **Local Explanations**  
+  - Use **SHAP Force Plots** to interpret individual predictions, e.g., why a campaign with a \$2,500 goal and 35-day duration was predicted as successful.  
+
+#### 2. Fairness Evaluation  
+We evaluate fairness across three protected attributes: **staff_pick**, **goal_percentile_bin**, and **main_category_encoded**.  
+
+| Attribute               | Metric                    | Group A                   | Group B                      | Disparity       |
+|-------------------------|---------------------------|---------------------------|------------------------------|-----------------|
+| **Staff Pick**          | Accuracy                  | 91.6%                     | 78.6%                        | Δ = 0.130       |
+|                         | Selection Rate (TPR)      | 96.5%                     | 49.8%                        | Δ = 0.4671      |
+|                         | Equalized Odds Difference | —                         | —                            | 0.6133          |
+| **Goal Percentile Bin** | Selection Rate (TPR)      | Lowest 50%: 82%           | Highest 10%: 8%              | Δ = 0.7401      |
+|                         | Equalized Odds Difference | —                         | —                            | 0.6023          |
+| **Category Encoded**    | Selection Rate (TPR)      | Best categories: >80%     | Worst categories: ~25%       | Δ = 0.6552      |
+|                         | Equalized Odds Difference | —                         | —                            | 0.9464          |
+
+- **Key Findings**  
+  - Staff-picked campaigns are far more likely to be correctly classified (ΔAccuracy ≈13%).  
+  - High-goal campaigns suffer from dramatically lower true positive rates (ΔTPR ≈74%).  
+  - Certain project categories are underrepresented, with TPR disparities up to ~65%. 
+- **Mitigation Strategies**  
+  1. **Reweighting**: Apply sample weights inversely proportional to group prevalence during training.  
+  2. **Fairness-Aware Algorithms**: Integrate constraints (e.g., Equalized Odds) via fairlearn or a post-processing wrapper.  
+  3. **Threshold Adjustment**: Calibrate decision thresholds per subgroup to equalize TPRs.  
+  4. **Data Augmentation**: Oversample underperforming categories or goal bins to balance training data.  
+
+#### 3. Additional Explainability Methods  
+- **LIME (Local Interpretable Model-Agnostic Explanations)**  
+  - Generates local surrogate linear models for individual predictions, confirming that `staff_pick`, `subcategory_success_rate`, and `usd_goal_real` consistently dominate.  
+- **Permutation Importance (ELI5)**  
+  - **Random Forest**: `staff_pick` (~0.037), `subcategory_success_rate`, followed by PCA components.  
+  - **Logistic Regression**: `category_success_rate` (~0.23), `main_category_encoded`, `staff_pick`.  
+  - Confirms global SHAP rankings and highlights model-specific nuances. 
+
+By combining SHAP, LIME, and permutation importance, we achieve both global and local transparency. The fairness audit, with concrete disparity metrics and mitigation plans, ensures we proactively address biases before deployment.  
+
 
 ---
 
 
 ## MLOps & Deployment
 
-To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success Prediction pipeline, we operationalize every stage—from model training to serving and monitoring—using containerization, CI/CD, and automated drift detection. This MLOps framework guarantees reproducibility, rapid iteration, and proactive maintenance in production. :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
+To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success Prediction pipeline, we operationalize every stage—from model training to serving and monitoring—using containerization, CI/CD, and automated drift detection. This MLOps framework guarantees reproducibility, rapid iteration, and proactive maintenance in production.
 
 ### 1. Dockerized Pipelines  
 - **Training Image** (`docker/train/Dockerfile`)  
@@ -214,7 +257,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
   - **Outputs**:  
     - `models/best_pipeline.pkl`  
     - `selected_features.txt`  
-    These artifacts are written to a mounted host volume and logged to MLflow. :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}  
+    These artifacts are written to a mounted host volume and logged to MLflow. 
 
 - **Inference Image** (`docker/infer/Dockerfile`)  
   - **Base**: `python:3.10-slim`  
@@ -232,7 +275,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
     uvicorn src.inference:app --host 0.0.0.0 --port 8000
     ```  
   - **Health Check**:  
-    - Endpoint: `GET /healthz` returns `200 OK` when service is ready. :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}  
+    - Endpoint: `GET /healthz` returns `200 OK` when service is ready. 
 
 ### 2. CI/CD with GitHub Actions  
 - **Triggers**:  
@@ -259,7 +302,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
 - **Artifacts**:  
   - Test reports (JUnit XML)  
   - Coverage reports  
-  - Built Docker image digests :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}  
+  - Built Docker image digests   
 
 ### 3. Model Drift Detection & Monitoring  
 - **Drift Metrics** (Evidently.ai)  
@@ -280,8 +323,7 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
   - **Automated Retraining**: Trigger `docker/train` pipeline when drift exceeds thresholds  
   - **Rollback**: Redeploy last stable inference image on critical degradation  
 - **Dashboarding**:  
-  - Visualize drift trends, feature importance shifts, and model performance over time. :contentReference[oaicite:8]{index=8}&#8203;:contentReference[oaicite:9]{index=9}  
-
+  - Visualize drift trends, feature importance shifts, and model performance over time. 
 
 ## API Service
 
