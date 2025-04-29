@@ -83,7 +83,7 @@ To ensure data integrity, prevent leakage, and extract meaningful predictors, we
 
 1. **Leakage Prevention**  
    - **Target Definition**: Create binary label (`success` vs. `failure`) based solely on project state at prediction time.  
-   - **Dynamic Removal**: Identify and drop post-outcome fields (e.g., `pledged_amount`, `backers`, `state_change_timestamps`, `staff_pick_time`).  
+   - **Dynamic Removal**: Identify and drop post-outcome fields (e.g., `pledged_amount`, `backers`, `state_change_timestamps`, `spotlight`).  
    - **Audit Trail**: Log removed features and counts in MLflow under the “DataPreprocessing” experiment.  
 
 2. **Missing Data Imputation**  
