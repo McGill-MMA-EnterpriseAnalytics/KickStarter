@@ -79,7 +79,7 @@ Key feature groups include:
 
 ### Data Preprocessing & Feature Engineering
 
-To ensure data integrity, prevent leakage, and extract meaningful predictors, we apply a multi-step preprocessing pipeline, with all actions logged via MLflow for transparency and reproducibility. :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
+To ensure data integrity, prevent leakage, and extract meaningful predictors, we apply a multi-step preprocessing pipeline, with all actions logged via MLflow for transparency and reproducibility. :contentReference[oaicite:2]{index=2}&#8203;
 
 1. **Leakage Prevention**  
    - **Target Definition**: Create binary label (`success` vs. `failure`) based solely on project state at prediction time.  
@@ -89,7 +89,7 @@ To ensure data integrity, prevent leakage, and extract meaningful predictors, we
 2. **Missing Data Imputation**  
    - **Numeric Columns**: KNN imputation (`k=5`) on standardized values, then invert scaling to original units.  
    - **Categorical Columns**: Mode imputation for `main_category` (only ~1.9% missing).  
-   - **Logging**: Record imputation counts and methods in MLflow. :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}  
+   - **Logging**: Record imputation counts and methods in MLflow.
 
 3. **Datetime Feature Extraction**  
    - **Parsing**: Convert `created_at`, `launched_at`, and `deadline` to `datetime64`.  
@@ -97,7 +97,7 @@ To ensure data integrity, prevent leakage, and extract meaningful predictors, we
      - `campaign_duration` = days between launch and deadline  
      - `prep_time` = days between creation and launch  
      - `launch_weekend` flag  
-     - Cyclic encodings for `launch_month`, `launch_day_of_week`, `launch_hour` (sine & cosine transforms). :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}  
+     - Cyclic encodings for `launch_month`, `launch_day_of_week`, `launch_hour` (sine & cosine transforms). 
 
 4. **Goal-Related Features**  
    - **Daily Goal Rate**: `goal_per_day` = goal / campaign_duration  
@@ -108,19 +108,18 @@ To ensure data integrity, prevent leakage, and extract meaningful predictors, we
 5. **Categorical Encoding & Embeddings**  
    - **One-Hot Encoding**: For low-cardinality features (< 10 unique values) such as `launch_weekend`.  
    - **Smoothed Target Encoding**: For high-cardinality features (`category`, `subcategory`, `country`), using training-only aggregates to avoid leakage.  
-   - **Entity Embeddings**: For selected high-cardinality categories (unique values ≥ 10), with embedding dimension = `min(50, √(n_unique))`. :contentReference[oaicite:8]{index=8}&#8203;:contentReference[oaicite:9]{index=9}  
+   - **Entity Embeddings**: For selected high-cardinality categories (unique values ≥ 10), with embedding dimension = `min(50, √(n_unique))`. 
 
 6. **Dimensionality Reduction**  
    - **Standardization**: Scale numeric features to zero mean and unit variance.  
    - **PCA**: Retain 95% of variance, reducing from 85 numeric dimensions to 52 principal components.  
-   - **Integration**: Append PCA components to feature matrix and log explained variance ratio. :contentReference[oaicite:10]{index=10}&#8203;:contentReference[oaicite:11]{index=11}  
+   - **Integration**: Append PCA components to feature matrix and log explained variance ratio. 
 
 7. **Final Cleanup**  
    - **Datetime Numeric Conversion**: Drop original timestamp columns; convert key dates to numeric days since `2010-01-01`.  
    - **Drop Originals**: Remove raw categorical columns after encoding and embedding.  
    - **Residual Imputation**: Median-impute any remaining missing values (e.g., missing percentile bins).  
-   - **Audit**: Log final feature count and any dropped columns for reproducibility. :contentReference[oaicite:12]{index=12}&#8203;:contentReference[oaicite:13]{index=13}  
-
+   - **Audit**: Log final feature count and any dropped columns for reproducibility. 
 
 ---
 
@@ -165,7 +164,7 @@ The model training phase transforms our engineered features into predictive insi
 
 ## Model Evaluation
 
-Model evaluation quantifies how well our algorithms generalize to unseen data and informs model selection for deployment. We assess both baseline and hyperparameter-optimized versions of Logistic Regression, Random Forest, XGBoost, and MLP using multiple metrics—Accuracy, Precision, Recall, F1 Score, ROC AUC, and Average Precision—on the held-out test set. In-depth comparisons highlight the benefits of tuning and guide our choice of the final model. :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
+Model evaluation quantifies how well our algorithms generalize to unseen data and informs model selection for deployment. We assess both baseline and hyperparameter-optimized versions of Logistic Regression, Random Forest, XGBoost, and MLP using multiple metrics—Accuracy, Precision, Recall, F1 Score, ROC AUC, and Average Precision—on the held-out test set. In-depth comparisons highlight the benefits of tuning and guide our choice of the final model. 
 
 ### Evaluation Metrics
 
@@ -174,29 +173,29 @@ Model evaluation quantifies how well our algorithms generalize to unseen data an
 - **Recall**: Fraction of actual positives correctly identified  
 - **F1 Score**: Harmonic mean of Precision and Recall  
 - **ROC AUC**: Area under the Receiver Operating Characteristic curve—measures separability  
-- **Average Precision**: Area under the Precision–Recall curve—sensitive to class imbalance :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
+- **Average Precision**: Area under the Precision–Recall curve—sensitive to class imbalance 
 
 ### Baseline vs. Optimized Performance
 
 - **Logistic Regression**  
   - Baseline ROC AUC: 0.9074, F1: 0.8382  
-  - Optimized ROC AUC: 0.9077 (+0.0003), F1: 0.8393 :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}  
+  - Optimized ROC AUC: 0.9077 (+0.0003), F1: 0.8393 
 
 - **Random Forest**  
   - Baseline ROC AUC: 0.9059, F1: 0.8375  
-  - Optimized ROC AUC: 0.9087 (+0.0028), F1: 0.8396 :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}  
+  - Optimized ROC AUC: 0.9087 (+0.0028), F1: 0.8396 
 
 - **XGBoost**  
   - Baseline ROC AUC: 0.8986, F1: 0.8284  
-  - Optimized ROC AUC: 0.9105 (+0.0119), F1: 0.8335 :contentReference[oaicite:8]{index=8}&#8203;:contentReference[oaicite:9]{index=9}  
+  - Optimized ROC AUC: 0.9105 (+0.0119), F1: 0.8335 
 
 - **MLP Classifier**  
   - Baseline ROC AUC: 0.8804, F1: 0.8153  
-  - Optimized ROC AUC: 0.9069 (+0.0265), F1: 0.8338 :contentReference[oaicite:10]{index=10}&#8203;:contentReference[oaicite:11]{index=11}  
+  - Optimized ROC AUC: 0.9069 (+0.0265), F1: 0.8338
 
 ### Model Selection
 
-The optimized XGBoost model achieves the highest ROC AUC (0.9105) and demonstrates balanced Precision (0.8456) and Recall (0.8217), making it the preferred candidate for production. Its substantial AUC gain from hyperparameter tuning underscores its ability to capture non-linear feature interactions effectively. :contentReference[oaicite:12]{index=12}&#8203;:contentReference[oaicite:13]{index=13}
+The optimized XGBoost model achieves the highest ROC AUC (0.9105) and demonstrates balanced Precision (0.8456) and Recall (0.8217), making it the preferred candidate for production. Its substantial AUC gain from hyperparameter tuning underscores its ability to capture non-linear feature interactions effectively. 
 
 ### Calibration & Robustness
 
