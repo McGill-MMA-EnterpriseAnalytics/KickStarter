@@ -8,7 +8,7 @@ This project analyzes Kickstarter campaign data to develop models that predict c
 
 ## Dataset
 
-The dataset contains information about 15,215 Kickstarter projects with 46 features including:
+The dataset contains information about 15,215 Kickstarter projects with 46 features, including:
 - Project metadata (name, goal, pledged amount, category, etc.)
 - Temporal information (launch date, deadline, etc.)
 - Campaign characteristics (staff pick status, video presence, etc.)
