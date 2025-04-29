@@ -318,9 +318,6 @@ To ensure reliable, repeatable, and scalable delivery of our Kickstarter Success
      - Build `train` and `infer` images  
      - Tag with Git commit SHA (`${{ github.sha }}`)  
      - Push to Docker Hub or GitHub Container Registry  
-  4. **(Optional) Deployment**  
-     - Deploy `infer` image to Kubernetes via Helm  
-     - Supports Canary or Blue/Green rollout  
 - **Secrets & Config**:  
   - `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`  
   - `KUBE_CONFIG` for cluster access  
